@@ -1,0 +1,71 @@
+{
+  "name": "dsh-token-hud",
+  "version": "0.1.0",
+  "description": "Global real-time Token HUD for DeepSeek Harness Web: draggable floating window showing live output tok/s, cumulative tokens, and per-session running/retrying status across all DSH sessions.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test.mjs && node test.client.mjs",
+    "prepack": "node test.mjs"
+  },
+  "license": "MIT",
+  "author": "wenbin_wb",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wenbin-wb/dsh-token-hud.git"
+  },
+  "homepage": "https://github.com/wenbin-wb/dsh-token-hud#readme",
+  "bugs": {
+    "url": "https://github.com/wenbin-wb/dsh-token-hud/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "token",
+    "tokens-per-second",
+    "tps",
+    "hud",
+    "overlay",
+    "monitor"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": ">=3.18.1 <4"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1 <5",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout"
+      ],
+      "platform": "web"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+- insert:
+    - id: token-hud
+      name: dsh-token-hud
+      inject: [webServer]

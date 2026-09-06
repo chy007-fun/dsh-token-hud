@@ -21,14 +21,14 @@
     "prepack": "node test.mjs"
   },
   "license": "MIT",
-  "author": "wenbin_wb",
+  "author": "chy007-fun",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wenbin-wb/dsh-token-hud.git"
+    "url": "git+https://github.com/chy007-fun/dsh-token-hud.git"
   },
-  "homepage": "https://github.com/wenbin-wb/dsh-token-hud#readme",
+  "homepage": "https://github.com/chy007-fun/dsh-token-hud#readme",
   "bugs": {
-    "url": "https://github.com/wenbin-wb/dsh-token-hud/issues"
+    "url": "https://github.com/chy007-fun/dsh-token-hud/issues"
   },
   "keywords": [
     "deepseek-harness",

@@ -1,6 +1,6 @@
 {
   "name": "dsh-token-hud",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Global real-time Token HUD for DeepSeek Harness Web: draggable floating window showing live output tok/s, cumulative tokens, and per-session running/retrying status across all DSH sessions.",
   "type": "module",
   "main": "lib/index.js",

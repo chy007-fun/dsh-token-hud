@@ -12,9 +12,14 @@
   输出 12.3K tok · 运行中 2
   ● sess-a  deepseek-v4-pro   28.1    ← 每个活跃会话一行
   ● sess-b  (重试等待)
+  ─────────────────────
+  模型用量（重启清零）
+  deepseek-v4-pro  ↑12.3K  ⚡58.2
+  glm-5.3          ↑4.5K   ⚡31.0
 ```
 
 状态点：🟢 绿=出字中（脉动）· 🟡 黄=等模型 · 🟠 橙=重试等待（脉动）· 🔵 蓝=工具调用 · ⚪ 灰=空闲/离线。
+模型聚合：`↑` 为该模型进程级累计输出，`⚡` 为滚动窗口 tps 的历史峰值；两者均为 host 纯内存，重启自然清零，无需额外配置。
 
 ## 为什么需要它
 
@@ -54,8 +59,8 @@ dsh plugin --profile web add link:<无空格路径>/dsh-token-hud
 
 ## 工作原理
 
-- **Host 半边**：实时速度走双通道自适应——新版宿主（0.1.5-rc.2+，format v2）逐 chunk 广播 `agent/assistant-stream` 帧（含子代理），旧宿主走 `session/event` 的 `assistant/chunk`；两通道互斥，见到帧后自动停用旧通道防双计。字符估算（中文 ≈1 tok/字，英文 ≈4 字符/tok）进滚动窗口聚合 tok/s；`assistant/message` 携带 usage 时校正估算误差；状态机跟踪 运行/出字/工具/重试/空闲。经 `webServer` 暴露只读端点 `GET /token-hud/v1/stats`。纯内存，零持久化，不写会话日志。
-- **Client 半边**：注册进 `shell.overlay`（官方全局悬浮层），每秒轮询渲染；页面隐藏自动暂停；API 失联 5 次显示灰色"离线"胶囊。
+- **Host 半边**：实时速度走双通道自适应——新版宿主（0.1.5-rc.2+，format v2）逐 chunk 广播 `agent/assistant-stream` 帧（含子代理），旧宿主走 `session/event` 的 `assistant/chunk`；两通道互斥，见到帧后自动停用旧通道防双计。字符估算（中文 ≈1 tok/字，英文 ≈4 字符/tok）进滚动窗口聚合 tok/s；`assistant/message` 携带 usage 时校正估算误差；同时按模型归集累计输出 token 与滚动窗口 tps 历史峰值（`request/header` 时提前锁定模型名，`assistant/message` 兜底回填），均为 host 纯内存，重启自然清零；状态机跟踪 运行/出字/工具/重试/空闲。经 `webServer` 暴露只读端点 `GET /token-hud/v1/stats`。零持久化，不写会话日志。
+- **Client 半边**：注册进 `shell.overlay`（官方全局悬浮层），每秒轮询渲染；页面隐藏自动暂停；API 失联 5 次显示灰色"离线"胶囊；`stats.models` 逐行渲染 `↑累计输出` 与 `⚡峰值速度`。
 
 ## 已知限制
 

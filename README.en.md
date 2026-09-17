@@ -14,9 +14,14 @@ English | [中文](README.md)
   output 12.3K tok · running 2
   ● sess-a  deepseek-v4-pro   28.1    <- one row per active session
   ● sess-b  (retrying)
+  ─────────────────────
+  Model usage (resets on restart)
+  deepseek-v4-pro  ↑12.3K  ⚡58.2
+  glm-5.3          ↑4.5K   ⚡31.0
 ```
 
 Status dot: green = streaming (pulsing) · yellow = awaiting model · orange = retrying (pulsing) · blue = tool call · gray = idle/offline.
+Model aggregation: `↑` is the in-process cumulative output for that model; `⚡` is the historical peak of the rolling-window tps while the model was active. Both are host-side in-memory only and reset automatically on restart.
 
 ## Why
 
@@ -56,8 +61,8 @@ dsh plugin --profile web add link:<space-free-path>/dsh-token-hud
 
 ## How it works
 
-- **Host half**: live throughput adapts across streaming channels — newer hosts (0.1.5-rc.2+, format v2) broadcast per-chunk `agent/assistant-stream` frames (subagents included), older hosts deliver `assistant/chunk` session events; the channels are mutually exclusive and the old one disables itself once frames are seen (double-count guard). Character heuristics (CJK ≈ 1 tok/char, other ≈ 4 chars/tok) feed a rolling TPS window; estimates self-correct when `assistant/message` carries usage; a state machine tracks running/streaming/tool/retrying/idle. Exposes a read-only endpoint `GET /token-hud/v1/stats` via `webServer`. Purely in-memory: no persistence, no session-log writes, zero prompt effect.
-- **Client half**: registers into `shell.overlay` (the official frame-wide overlay slot), polls once per second, pauses when the page is hidden, and degrades to a gray "offline" pill after 5 consecutive failures.
+- **Host half**: live throughput adapts across streaming channels — newer hosts (0.1.5-rc.2+, format v2) broadcast per-chunk `agent/assistant-stream` frames (subagents included), older hosts deliver `assistant/chunk` session events; the channels are mutually exclusive and the old one disables itself once frames are seen (double-count guard). Character heuristics (CJK ≈ 1 tok/char, other ≈ 4 chars/tok) feed a rolling TPS window; estimates self-correct when `assistant/message` carries usage. The host also aggregates per-model cumulative output tokens and the historical peak of the rolling tps (model attribution starts early via `request/header` when available and is completed by `assistant/message`); both are purely in-memory and reset automatically on restart. A state machine tracks running/streaming/tool/retrying/idle. Exposes a read-only endpoint `GET /token-hud/v1/stats` via `webServer`. No persistence, no session-log writes, zero prompt effect.
+- **Client half**: registers into `shell.overlay` (the official frame-wide overlay slot), polls once per second, pauses when the page is hidden, and degrades to a gray "offline" pill after 5 consecutive failures; `stats.models` renders per-model `↑` cumulative output and `⚡` peak tps rows.
 
 ## Known limitations
 

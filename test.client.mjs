@@ -112,6 +112,10 @@ fetchImpl = async (url) => {
 				{ id: 'sess-abc123def', status: 'streaming', tps: 28.1, turnOutput: 900, sessionOutput: 9000, turnMs: 30000, lastChunkAgeMs: 200, model: 'deepseek-v4-pro', provider: 'nionio2026' },
 				{ id: 'sess-xyz789', status: 'retrying', tps: 0, turnOutput: 0, sessionOutput: 5000, turnMs: 12000, lastChunkAgeMs: null, model: null, provider: null },
 			],
+			models: [
+				{ model: 'deepseek-v4-pro', provider: 'nionio2026', outputTokens: 4800, peakTps: 28.1 },
+				{ model: 'glm-5.3', provider: 'nionio', outputTokens: 1200, peakTps: 45.0 },
+			],
 		}),
 	};
 };
@@ -127,6 +131,10 @@ assert(html.includes('deepseek-v4-pro'), 'model rendered');
 assert(html.includes('28.1'), 'per-session tps rendered');
 assert(html.includes('th-streaming'), 'streaming dot class');
 assert(html.includes('th-retrying'), 'retrying dot class');
+// 模型聚合区：两行 ↑累计 + ⚡峰值
+assert(html.includes('th-models'), 'models section rendered');
+assert(html.includes('↑') && html.includes('⚡'), 'up-arrow and lightning icons present');
+assert(html.includes('glm-5.3'), 'second model row rendered');
 console.log('S2 正常渲染 ✓');
 
 // ---- 场景 3：折叠 → 小胶囊 ----

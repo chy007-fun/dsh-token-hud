@@ -56,7 +56,7 @@ dsh plugin --profile web add link:<space-free-path>/dsh-token-hud
 
 ## How it works
 
-- **Host half**: listens to `session/event` for **all** sessions, estimates tokens from `assistant/chunk` deltas with a rolling window, corrects estimates when `assistant/message` carries usage, and tracks running/streaming/tool/retrying/idle per session. Exposes a read-only endpoint `GET /token-hud/v1/stats` via `webServer`. Purely in-memory: no persistence, no session-log writes, zero prompt effect.
+- **Host half**: live throughput adapts across streaming channels — newer hosts (0.1.5-rc.2+, format v2) broadcast per-chunk `agent/assistant-stream` frames (subagents included), older hosts deliver `assistant/chunk` session events; the channels are mutually exclusive and the old one disables itself once frames are seen (double-count guard). Character heuristics (CJK ≈ 1 tok/char, other ≈ 4 chars/tok) feed a rolling TPS window; estimates self-correct when `assistant/message` carries usage; a state machine tracks running/streaming/tool/retrying/idle. Exposes a read-only endpoint `GET /token-hud/v1/stats` via `webServer`. Purely in-memory: no persistence, no session-log writes, zero prompt effect.
 - **Client half**: registers into `shell.overlay` (the official frame-wide overlay slot), polls once per second, pauses when the page is hidden, and degrades to a gray "offline" pill after 5 consecutive failures.
 
 ## Known limitations

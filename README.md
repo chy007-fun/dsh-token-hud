@@ -54,7 +54,7 @@ dsh plugin --profile web add link:<无空格路径>/dsh-token-hud
 
 ## 工作原理
 
-- **Host 半边**：监听所有会话的 `session/event` 流，`assistant/chunk` 逐字估算、滚动窗口聚合 tok/s；`assistant/message` 携带 usage 时校正估算误差；状态机跟踪 运行/出字/工具/重试/空闲。经 `webServer` 暴露只读端点 `GET /token-hud/v1/stats`。纯内存，零持久化，不写会话日志。
+- **Host 半边**：实时速度走双通道自适应——新版宿主（0.1.5-rc.2+，format v2）逐 chunk 广播 `agent/assistant-stream` 帧（含子代理），旧宿主走 `session/event` 的 `assistant/chunk`；两通道互斥，见到帧后自动停用旧通道防双计。字符估算（中文 ≈1 tok/字，英文 ≈4 字符/tok）进滚动窗口聚合 tok/s；`assistant/message` 携带 usage 时校正估算误差；状态机跟踪 运行/出字/工具/重试/空闲。经 `webServer` 暴露只读端点 `GET /token-hud/v1/stats`。纯内存，零持久化，不写会话日志。
 - **Client 半边**：注册进 `shell.overlay`（官方全局悬浮层），每秒轮询渲染；页面隐藏自动暂停；API 失联 5 次显示灰色"离线"胶囊。
 
 ## 已知限制
